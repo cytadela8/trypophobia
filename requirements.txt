@@ -1,0 +1,9 @@
+keras
+tensorflow-gpu
+sklearn
+scipy
+numpy
+neptune-cli
+ipython
+git+git://github.com/stared/keras-sequential-ascii.git
+h5py
