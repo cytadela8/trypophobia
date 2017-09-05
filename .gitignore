@@ -1,6 +1,10 @@
 # MY / CUSTOM
 
 data
+bin
+download
+venv_oldkeras
+.idea
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
