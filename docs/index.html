@@ -1,1 +1,80 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Tryponet</title>
+		<meta name="description" content="Webpage for xxxx">
+		<link rel="sylesheet" href="css/reset/reset.css">
+		<script src="lib/keras.js"></script>
+		<script src="lib/load-image.all.min.js"></script>
 
+	</head>
+	<body>
+		<script>
+var model = new KerasJS.Model({
+	filepaths: {
+		model: 'model/model.json',
+		weights: 'model/model_weights.buf',
+		metadata: 'model/model_metadata.json'
+	},
+	gpu: true
+});
+
+IMAGE_HEIGHT = 250;
+IMAGE_WIDTH = 250;
+
+function inputHandler() {
+    path = document.getElementById('pathek').value;
+    function callback(result) {
+        console.log(result);
+        var newParagraph = document.createElement('p');
+        newParagraph.textContent = "Procent trypofobicznosci: " + result;
+        document.body.appendChild(newParagraph);
+    }
+    czyTrypo(path, callback);
+}
+
+function czyTrypo(path, callback) {
+	console.log("starting");
+	//path = "https://i.imgur.com/KY0kCMy.png";
+	loadImage(
+		path,
+		function (img) {
+			img2 = loadImage.scale(img, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT});
+			document.body.appendChild(img2);
+			var canvas = document.createElement('canvas');
+			ctx = canvas.getContext('2d');
+			ctx.drawImage(img2, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+			data = ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data;
+			console.log(data);
+
+			array_data = new Float32Array(data)
+			//console.log(array2);
+			array_tensor = new Float32Array(IMAGE_WIDTH * IMAGE_HEIGHT * 3);
+			for (var i=0;i<IMAGE_WIDTH * IMAGE_HEIGHT; i++)
+				for (var j=0;j<3;j++)
+					array_tensor[i*3+j] = array_data[i*4+j] / 255;
+			const inputData = { input: array_tensor };
+			console.log("starting predict");
+			model.predict(inputData).then(outputData => {
+				console.log(outputData.output);
+				callback(outputData.output[0]);
+			}).catch(exception => {
+				console.log(exception);
+			});
+		},
+		{aspectRatio: 1, crossOrigin: 'Anonymous'}
+	);
+
+}
+
+model.ready().then( () => {
+console.log("I'm ready!!!");
+});
+		</script>
+		<div>
+		<input id='pathek' value="https://i.imgur.com/KY0kCMy.png" size="100"></input>
+		<button onclick="inputHandler()">DOIT</button>
+		</div>
+	</body>
+</html>
