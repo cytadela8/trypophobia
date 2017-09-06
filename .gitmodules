@@ -1,0 +1,3 @@
+[submodule "deps/reddit"]
+	path = deps/reddit
+	url = https://github.com/voussoir/reddit.git
