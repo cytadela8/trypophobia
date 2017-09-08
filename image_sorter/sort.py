@@ -7,6 +7,8 @@ import shutil
 import cv2
 import imghdr
 import tqdm
+from PIL import Image
+import numpy as np
 
 def main():
 
@@ -45,8 +47,12 @@ def main():
             os.system("convert %s %s"%(join(source_dir, filename), new_filename))
             os.remove(join(source_dir, filename))
             imdata = cv2.imread(new_filename, cv2.IMREAD_COLOR)
-        elif filename_type is not None:
-            imdata = cv2.imread(join(source_dir, filename), cv2.IMREAD_COLOR)
+        else:
+            print(filename)
+            imdata = np.array(Image.open(join(source_dir, filename)))
+        #else:
+        #    print("Image corrupted")
+        #    continue
 
         cv2.imshow("Trypophobic or not?", imdata)
 
