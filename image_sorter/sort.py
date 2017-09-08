@@ -32,7 +32,8 @@ def main():
         print("Malformed args")
         return
 
-   # window = cv2.namedWindow("Tryphobic or not?")
+    cv2.namedWindow('Trypophobic or not?',cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Trypophobic or not?', 1200, 1000)
 
     filenames_to_sort = [f for f in os.listdir(source_dir) if isfile(join(source_dir, f))]
     for filename in tqdm.tqdm(filenames_to_sort):
