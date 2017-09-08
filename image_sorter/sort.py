@@ -50,6 +50,7 @@ def main():
         else:
             print(filename)
             imdata = np.array(Image.open(join(source_dir, filename)))
+            imdata = cv2.cvtColor(imdata, cv2.COLOR_BGR2RGB)
         #else:
         #    print("Image corrupted")
         #    continue
