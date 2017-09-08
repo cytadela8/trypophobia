@@ -6,6 +6,7 @@ import sys
 import shutil
 import cv2
 import imghdr
+import tqdm
 
 def main():
 
@@ -34,7 +35,7 @@ def main():
    # window = cv2.namedWindow("Tryphobic or not?")
 
     filenames_to_sort = [f for f in os.listdir(source_dir) if isfile(join(source_dir, f))]
-    for filename in filenames_to_sort:
+    for filename in tqdm.tqdm(filenames_to_sort):
 
         filename_type = imghdr.what(join(source_dir, filename))
 

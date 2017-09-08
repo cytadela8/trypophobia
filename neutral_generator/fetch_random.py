@@ -67,6 +67,7 @@ class URLRetriever:
 def process_url(url_queue):
     while True:
         job = url_queue.get()
+        query = job[2]
         url = job[1]
         position = job[0]
         download_folder = "./results"
@@ -96,7 +97,7 @@ def process_url(url_queue):
                         if (extension is not None) and (not 'gif' == extension):
                             hash = md5(open(filename, 'rb').read()).hexdigest()
                             shutil.move(filename,
-                                        os.path.join(download_folder, "%05d-%s.%s" % (position, hash, extension)))
+                                        os.path.join(download_folder, "%s-%05d-%s.%s" % (query, position, hash, extension)))
                 except:
                     pass
                 finally:
@@ -112,7 +113,7 @@ def retrieve_url(word_queue, url_queue):
 
             batch = scraper.get_urls_and_ranks(query, 2)
             for entry in batch:
-                url_queue.put(entry)
+                url_queue.put((entry[0], entry[1], query))
             time.sleep(random.random()/5)
 
             word_queue.task_done()
@@ -127,12 +128,12 @@ def main():
     url_queue = Queue(maxsize=0)
     word_queue = Queue(maxsize=0)
 
-    images_workers = [Thread(target=process_url, args=(url_queue,)) for _ in range(10)]
+    images_workers = [Thread(target=process_url, args=(url_queue,)) for _ in range(25)]
     for worker in images_workers:
         worker.setDaemon(True)
         worker.start()
 
-    url_workers = [Thread(target=retrieve_url, args=(word_queue, url_queue,)) for _ in range(5)]
+    url_workers = [Thread(target=retrieve_url, args=(word_queue, url_queue,)) for _ in range(10)]
     for worker in url_workers:
         worker.setDaemon(True)
         worker.start()
@@ -149,6 +150,8 @@ def main():
         left = word_queue.qsize()
         pbar.update(prev_left-left)
         prev_left = left
+        if left == 0:
+            break
         time.sleep(0.1)
 
     word_queue.join()

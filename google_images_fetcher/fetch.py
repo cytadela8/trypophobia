@@ -14,6 +14,7 @@ import os
 import imghdr
 from contextlib import closing
 import sys
+from hashlib import md5
 
 DEBUG = False
 
@@ -39,11 +40,11 @@ def download_file(url, position, download_folder, session, semaphore):
                 if os.path.isfile(filename):
                     extension = imghdr.what(filename)
                     if (extension is not None) and (not 'gif' == extension):
-                        shutil.move(filename, os.path.join(download_folder,"%05d.%s"%(position, extension)))
+                        hash = md5(open(filename, 'rb').read()).hexdigest()
+                        shutil.move(filename, os.path.join(download_folder,"%05d-%s.%s"%(position, hash, extension)))
         finally:
             if os.path.isfile(filename):
                 os.remove(filename)
-
 
 @asyncio.coroutine
 def wait_with_progressbar(coros):
@@ -74,7 +75,7 @@ def main():
         print("Invalid args")
         return
 
-    print("Scrapper started")
+    print("Scrapper started for query: %s"%query)
 
     if DEBUG:
         driver = webdriver.Chrome()
