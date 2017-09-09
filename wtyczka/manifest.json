@@ -4,6 +4,22 @@
   "version": "0.1",
 
   "description": "Extenstion for blocking trypophoby images in browser using deep neural networks",
+
+  "permissions": [
+    "unlimitedStorage",
+    "<all_urls>",
+    "webRequest",
+    "<all_urls>",
+    "webRequestBlocking",
+    "<all_urls>"],
+
+  "background": {
+      "scripts": ["interceptor.js"]
+    },
+
+  "web_accessible_resources": [
+    "wrapper.js"
+  ],
   
   "content_scripts": [
     {
