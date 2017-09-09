@@ -1,4 +1,6 @@
-document.body.style.border = "5px solid red";
+document.addEventListener("DOMContentLoaded", function() {
+
+//document.body.style.border = "5px solid red";
 
 function process_image(img)
 {
@@ -29,7 +31,7 @@ function process_image(img)
   //console.log("Donek")
 }
 
-//Array.prototype.forEach.call(document.images, process_image);
+Array.prototype.forEach.call(document.images, process_image);
 
 obs = new window.MutationObserver(function (mutations, observer) {
   for (var mutation of mutations) {
@@ -50,4 +52,6 @@ obs = new window.MutationObserver(function (mutations, observer) {
   }
 })
 // have the observer observe foo for changes in children
-//obs.observe( document.body, { childList:true, subtree:true });
+obs.observe( document.body, { childList:true, subtree:true });
+
+});

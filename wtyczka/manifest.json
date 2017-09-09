@@ -7,24 +7,13 @@
 
   "permissions": [
     "unlimitedStorage",
-    "<all_urls>",
-    "webRequest",
-    "<all_urls>",
-    "webRequestBlocking",
     "<all_urls>"],
 
-  "background": {
-      "scripts": ["interceptor.js"]
-    },
-
-  "web_accessible_resources": [
-    "wrapper.js"
-  ],
-  
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["tryponet.js"]
+      "js": ["tryponet.js"],
+      "run_at": "document_start"
     }
   ]
 
