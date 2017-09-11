@@ -35,14 +35,14 @@ def main():
         return
 
     cv2.namedWindow('Trypophobic or not?',cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Trypophobic or not?', 1200, 1000)
+    cv2.resizeWindow('Trypophobic or not?', 1000, 800)
 
     filenames_to_sort = [f for f in os.listdir(source_dir) if isfile(join(source_dir, f))]
     for filename in tqdm.tqdm(filenames_to_sort):
 
         filename_type = imghdr.what(join(source_dir, filename))
 
-        if filename_type == 'gif':
+        if filename_type == 'gif' and False:
             new_filename = join(source_dir, filename)[:-4]+'.jpeg'
             os.system("convert %s %s"%(join(source_dir, filename), new_filename))
             os.remove(join(source_dir, filename))
