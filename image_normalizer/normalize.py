@@ -7,6 +7,7 @@ from PIL import Image
 import numpy as np
 from hashlib import md5
 import shutil
+import tqdm
 
 def main():
 
@@ -26,7 +27,7 @@ def main():
 
     filenames = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
 
-    for filename in filenames:
+    for filename in ftqdm.tqdm(filenames):
         path_to_file = os.path.join(source_dir, filename)
 
         rawdata = np.array(Image.open(path_to_file).convert("RGB"))
@@ -56,7 +57,7 @@ def main():
         dest_path = os.path.join(dest_dir, hash+".png")
         shutil.move(tmpfile, dest_path)
 
-        print("%s\t=>\t%s"%(path_to_file,dest_path))
+        #print("%s\t=>\t%s"%(path_to_file,dest_path))
 
 
     return
