@@ -1,0 +1,58 @@
+/*@charset "UTF-8"
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans|Droid+Sans+Mono);*/
+
+@-webkit-keyframes trypo-spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes trypo-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes trypo-reveal {
+    0% { -webkit-filter: blur(20px);}
+    25% { -webkit-filter: blur(15px);}
+    50% { -webkit-filter: blur(10px);}
+    75% { -webkit-filter: blur(5px);}
+    100% { -webkit-filter: blur(0px);}
+}
+
+@keyframes trypo-reveal {
+    0% { filter: blur(20px);}
+    25% { filter: blur(15px);}
+    50% { filter: blur(10px);}
+    75% { filter: blur(5px);}
+    100% { filter: blur(0px);}
+}
+
+.tryponet-hover:hover {
+    -webkit-filter: blur(4px);
+    filter: blur(4px);
+}
+
+/*
+.trypo-warning {
+    position: relative; /* So we can position the content as absolute */
+
+    /* Using the borders to create a triangle  */
+   /* border-left: 0.70em solid transparent;
+    border-right: 0.70em solid transparent;
+    border-bottom: 1.35em solid transparent;
+
+    top: -1em;          /* Correction because of the CSS Triangle trick*/
+/*}
+.trypo-warning::before {
+
+    content: "⚠";
+
+    /* Position the character over the triangle */
+  /*  top: 0.45em;
+    left: -0.45em;
+    position: absolute;
+
+    color: white;
+    font-size: 2em;
+    line-height: 1em;
+}*/
