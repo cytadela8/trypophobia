@@ -12,9 +12,17 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["tryponet.js"],
+      "css": ["trypo-animations.css"],
+      "js": ["lib/load-image.all.min.js", "lib/fittext.js", "tryponet.js"],
+      "all_frames": true,
       "run_at": "document_start"
     }
+  ],
+
+  "web_accessible_resources": [
+    "model/model.json",
+    "model/model_weights.buf",
+    "model/model_metadata.json"
   ]
 
 }
