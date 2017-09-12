@@ -8,6 +8,8 @@ import numpy as np
 from hashlib import md5
 import shutil
 import tqdm
+import random
+import string
 
 def main():
 
@@ -26,15 +28,12 @@ def main():
         return
 
     filenames = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
-
-    for filename in ftqdm.tqdm(filenames):
+    tmpfile = 'tmp/tmp' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    for filename in tqdm.tqdm(filenames):
         path_to_file = os.path.join(source_dir, filename)
 
         rawdata = np.array(Image.open(path_to_file).convert("RGB"))
         rawdata = cv2.cvtColor(rawdata, cv2.COLOR_RGB2BGR)
-
-        #if len(rawdata.shape) == 2:
-        #    rawdata = cv2.cvtColor(rawdata, cv2.COLOR_GRAY2RGB)
 
         height = rawdata.shape[1]
         width = rawdata.shape[0]
@@ -44,21 +43,18 @@ def main():
         factor = max(factor_h, factor_w)
         rawdata = cv2.resize(rawdata, (round(height*factor), round(width*factor)))
 
-        cv2.imshow("s",rawdata)
         height = rawdata.shape[1]
         width = rawdata.shape[0]
         posh = int(float(height)/2-256/2)
         posw = int(float(width)/2-256/2)
 
-        tmpfile = "/tmp/tmpimage.png"
-        cv2.imwrite(tmpfile, rawdata[posw:(posw+256),posh:(posh+256),:])
+        cv2.imwrite(tmpfile, rawdata[posw:(posw+256), posh:(posh+256), :])
         hash = md5(open(tmpfile, 'rb').read()).hexdigest()
 
         dest_path = os.path.join(dest_dir, hash+".png")
         shutil.move(tmpfile, dest_path)
 
         #print("%s\t=>\t%s"%(path_to_file,dest_path))
-
 
     return
 
