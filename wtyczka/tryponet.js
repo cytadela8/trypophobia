@@ -1,16 +1,10 @@
+var kerasWorker = new Worker(browser.extension.getURL('prediction_generator.js'));
+var kerasWorkerPseudoSemaphor = false;
+
+var IMAGE_HEIGHT = 256;
+var IMAGE_WIDTH = 256;
+
 document.addEventListener("DOMContentLoaded", function() {
-/*
-var model = new KerasJS.Model({
-    filepaths: {
-        model: browser.extension.getURL('model/model.json'),
-        weights: browser.extension.getURL('model/model_weights.buf'),
-        metadata: browser.extension.getURL('model/model_metadata.json')
-    },
-    gpu: true
-});
-*/
-var IMAGE_HEIGHT = 250;
-var IMAGE_WIDTH = 250;
 
 function waitfor(test, expectedValue, msec, count, source, callback) {
     // Check if condition met. If not, re-check later (msec).
@@ -43,6 +37,34 @@ function whichAnimationEvent(){
     }
 }
 
+function maintainSquareShape(mask, rectangle, spinner)
+{
+    var wH = mask.clientHeight;
+    var wW = mask.clientWidth;
+    var rectangleWidth = Math.min(Number((wH * 100) / wW), 100);
+    var rectangleHeight = Math.min(Number((wW * 100) / wH), 100);
+    var spinnerBorderSize = Number(rectangle.clientHeight / 10);
+
+    rectangle.style.width = rectangleWidth + "%";
+    rectangle.style.height = rectangleHeight + "%";
+    spinner.style.borderTop = spinnerBorderSize + "px solid rgba(100,100,100,1)";
+    spinner.style.borderBottom = spinnerBorderSize + "px solid rgba(100,100,100,1)";
+    spinner.style.borderLeft = spinnerBorderSize + "px solid rgba(160,160,160,1)";
+    spinner.style.borderRight = spinnerBorderSize + "px solid rgba(160,160,160,1)";
+
+    //mask.classList.add('tryponet_done');
+    if (mask.classList.contains('tryponet_done'))
+    {
+        return;
+    }
+    else
+    {
+        setTimeout(function () {
+            maintainSquareShape(mask, rectangle, spinner);
+        }, 100);
+    }
+}
+
 var debug = 3;
 
 function process_image(img) {
@@ -50,234 +72,282 @@ function process_image(img) {
         return;
     }
     debug+=1;
-  //console.log(img.src)
-  if (img.parentNode.classList.contains('tryponet_internal'))
-    return;
 
-  var originalImg = img.cloneNode(true);
-  //img.style.visibility = 'hidden';
-  img.style.webkitFilter = "blur(20px)";
-  img.style.filter = "blur(20px)";
-  var unmutatedImg = img.cloneNode(true);
+    //(function loadimg(){if((img === '')===true){setTimeout(loadimg, 50);}})();
 
-  var parent = img.parentNode;
-  var wrapper = document.createElement('div');
-  wrapper.removeAttribute("style");
-  wrapper.style.position = 'relative';
-  wrapper.classList.add('tryponet_internal');
-  // set the wrapper as child (instead of the element)
-  parent.replaceChild(wrapper, img);
-  // set element as child of wrapper
-  wrapper.appendChild(img);
+    //image was already processed
+    if (img.parentNode.classList.contains('tryponet_internal'))
+        return;
 
-  //mask the element
-  var mask = document.createElement('div');
-    mask.removeAttribute("style");
-    mask.style.width = '100%';
-    mask.style.height = '100%';
-    mask.style.position = 'absolute';
-    mask.style.left = '0';
-    mask.style.top = '0';
-    mask.style.zIndex = '1000';
-    mask.style.backgroundColor = "rgba(34,34,34,0.30)";
-    wrapper.appendChild(mask);
+    /*if(img.src === '')
+    {
+        img.addEventListener("load", function(){process_image(img);}, false);
+        return;
+    }*/
 
-    var wH = mask.clientHeight;
-    var wW = mask.clientWidth;
-    var rectangleWidth = Math.min(Number((wH*100)/wW), 100);
-    var rectangleHeight = Math.min(Number((wW*100)/wH), 100);
+  //if the image is loaded using js we need to wait for the image to be present
+  //waitfor(function(){return img.src === ''}, false, 50, 0, "img-js-bootup", function() {
 
-  //add a rectangle
-    var rectangle = document.createElement('div');
-    rectangle.style.position = "absolute";
-    rectangle.style.width = rectangleWidth+"%";
-    rectangle.style.height = rectangleHeight+"%";
-    rectangle.style.right = "50%";
-    rectangle.style.bottom = "50%";
-    rectangle.style.transform = "translate(50%,50%)";
-    //rectangle.style.backgroundColor = 'rgba(34,34,34,0.30)';
+      var originalImg = img.cloneNode(true);
+      //img.style.visibility = 'hidden';
+      img.style.webkitFilter = "blur(20px)";
+      img.style.filter = "blur(20px)";
+      var unmutatedImg = img.cloneNode(true);
 
-    mask.appendChild(rectangle);
+      var parent = img.parentNode;
+      var wrapper = document.createElement('div');
+      wrapper.removeAttribute("style");
+      wrapper.style.position = 'relative';
+      wrapper.classList.add('tryponet_internal');
+      // set the wrapper as child (instead of the element)
+      parent.replaceChild(wrapper, img);
+      // set element as child of wrapper
+      wrapper.appendChild(img);
 
-  //add a spinner
-    var spinner = document.createElement('div');
-    var spinnerBorderSize = Number(rectangle.clientHeight/10);
-    spinner.style.border = +"px solid rgba(50,50,50,1)";
-    spinner.style.borderTop = spinnerBorderSize+"px solid rgba(100,100,100,1)";
-    spinner.style.borderBottom = spinnerBorderSize+"px solid rgba(100,100,100,1)";
-    spinner.style.borderLeft = spinnerBorderSize+"px solid rgba(160,160,160,1)";
-    spinner.style.borderRight = spinnerBorderSize+"px solid rgba(160,160,160,1)";
-    spinner.style.position = "relative";
-    spinner.style.borderRadius = "50%";
-    spinner.style.width = "40%";
-    spinner.style.paddingBottom = "40%";
-    spinner.style.objectFit = "contain";
-    spinner.style.maxHeight = "100%";
-    spinner.style.display = "block";
-    spinner.style.margin = "auto";
-    spinner.style.marginTop = "10%";
-    spinner.style.webkitAnimation = "trypo-spin 5s linear infinite";
-    spinner.style.animation = "trypo-spin 5s linear infinite";
-    rectangle.appendChild(spinner);
+      //console.log("TESbhnbb11111111111111111T")
 
-    //add text container
-    var textCointainer = document.createElement('div');
-    textCointainer.style.position = "absolute";
-    textCointainer.style.width = "100%";
-    textCointainer.style.height = "30%";
+      //mask the element
+      var mask = document.createElement('div');
+      mask.removeAttribute("style");
+      mask.style.width = '100%';
+      mask.style.height = '100%';
+      mask.style.position = 'absolute';
+      mask.style.left = '0';
+      mask.style.top = '0';
+      mask.style.zIndex = '1000';
+      mask.style.backgroundColor = "rgba(34,34,34,0.30)";
+      wrapper.appendChild(mask);
 
-    //add processing text
-    var statusText = document.createElement('span');
-    statusText.style.position = "absolute";
-    //statusText.style.fontSize = "calc(0.75em + 1vmin)";
-    statusText.style.margin = "5% auto 5%";
-    //statusText.style.display = "inline-block";
-    statusText.style.textAlign = "center";
-    statusText.style.fontWeight = "bold";
-    statusText.style.color = "white";
-    //statusText.style.marginTop = "5%";
-    statusText.style.width = "100%";
-    //statusText.style.height = "30%";
-    statusText.style.paddingBottom = "10%";
-    //statusText.style.paddingTop = "10%";
-    statusText.style.top = "50%";
-    statusText.style.transform = "translateY(-50%)";
-    statusText.innerHTML = "Processing...";
+      //add a rectangle
+      var rectangle = document.createElement('div');
+      rectangle.style.position = "absolute";
+      rectangle.style.right = "50%";
+      rectangle.style.bottom = "50%";
+      rectangle.style.transform = "translate(50%,50%)";
 
-    rectangle.appendChild(textCointainer);
-    textCointainer.appendChild(statusText);
-    fitText(statusText, 0.8);
+      mask.appendChild(rectangle);
 
-    /*model.ready().then( () => {
-        waitfor(function(){return model.isRunning}, false, 50, 0, "model waiter",
-            function () {*/
+      //add a spinner
+      var spinner = document.createElement('div');
+      spinner.style.border = +"px solid rgba(50,50,50,1)";
+      spinner.style.position = "relative";
+      spinner.style.borderRadius = "50%";
+      spinner.style.width = "40%";
+      spinner.style.paddingBottom = "40%";
+      spinner.style.objectFit = "contain";
+      spinner.style.maxHeight = "100%";
+      spinner.style.display = "block";
+      spinner.style.margin = "auto";
+      spinner.style.marginTop = "10%";
+      spinner.style.webkitAnimation = "trypo-spin 5s linear infinite";
+      spinner.style.animation = "trypo-spin 5s linear infinite";
+      rectangle.appendChild(spinner);
 
-                var img2 = loadImage.scale(img, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT});
+      maintainSquareShape(mask, rectangle, spinner);
 
-                var canvas = document.createElement('canvas');
-                var ctx = canvas.getContext('2d');
-                ctx.drawImage(img2, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
-                var data = ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data;
-                //console.log(data);
+      //add text container
+      var textCointainer = document.createElement('div');
+      textCointainer.style.position = "absolute";
+      textCointainer.style.width = "100%";
+      textCointainer.style.height = "30%";
 
-                var array_data = new Float32Array(data)
-                //console.log(array2);
-                var array_tensor = new Float32Array(IMAGE_WIDTH * IMAGE_HEIGHT * 3);
-                for (var i=0;i<IMAGE_WIDTH * IMAGE_HEIGHT; i++)
-                    for (var j=0;j<3;j++)
-                        array_tensor[i*3+j] = array_data[i*4+j] / 255;
-                const inputData = { input: array_tensor };
+      //add processing text
+      var statusText = document.createElement('span');
+      statusText.style.position = "absolute";
+      //statusText.style.fontSize = "calc(0.75em + 1vmin)";
+      statusText.style.margin = "5% auto 5%";
+      statusText.style.display = "inline-block";
+      statusText.style.textAlign = "center";
+      statusText.style.fontWeight = "bold";
+      statusText.style.color = "white";
+      //statusText.style.marginTop = "5%";
+      statusText.style.width = "100%";
+      //statusText.style.height = "30%";
+      statusText.style.paddingBottom = "10%";
+      //statusText.style.paddingTop = "10%";
+      statusText.style.top = "50%";
+      statusText.style.transform = "translateY(-50%)";
+      statusText.innerHTML = "Processing...";
 
-            console.log("Predict started");
-            statusText.innerHTML = "Predicting...";
-            fitText(statusText, 0.8);
+      rectangle.appendChild(textCointainer);
+      textCointainer.appendChild(statusText);
+      fitText(statusText, 0.8);
+      statusText.style.position = "relative";
 
-            //in case the js code of the website modified the node we restore it
-            wrapper.removeChild(img);
-            var img = unmutatedImg.cloneNode(true);
-            wrapper.appendChild(img);
+      //model.ready().then( function () {
+          waitfor(function () {
+              return kerasWorkerPseudoSemaphor
+          }, false, 50, 0, "model waiter",
+          function () {
 
-            //model.predict(inputData).then( outputData => {
-            setTimeout(function(){
-                //console.log("I WAS INVOKED")
-                var outputData = {"output":[0.6,0.4]};
-                console.log(outputData.output);
-                console.log(outputData.output[0]);
+              kerasWorkerPseudoSemaphor = true;
+              console.log("I DO NOT KNOW WHAT IS GOING ON IN JS");
 
-                statusText.innerHTML = Number(outputData.output[0]*100).toFixed(0)+'% Trypophobic';
-                rectangle.removeChild(spinner);
-                rectangle.removeChild(textCointainer);
-                textCointainer.removeChild(statusText);
+              var img2 = loadImage.scale(originalImg, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT});
 
-                //console.log("REMOVAL")
-                if(outputData.output[0] < 0.005) {
-                    //console.log("ASDAS111111111");
-                    img.style.webkitFilter = "";
-                    img.style.filter = "";
-                    img.style.animation = "trypo-reveal linear 1s";
-                    img.style.webkitAnimation = "trypo-reveal linear 1s";
+              console.log("asdassfdsfs");
 
-                    //mask.style.backgroundColor = "";
-                    mask.removeChild(rectangle);
-                    console.log("REE")
-                    wrapper.removeChild(mask);
+              var canvas = document.createElement('canvas');
+              var ctx = canvas.getContext('2d');
+              ctx.drawImage(img2, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+              var data = ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data;
+              //console.log(data);
 
-                    console.log("I'm here");
-                    img.addEventListener(whichAnimationEvent(), function(){
-                        //console.log("Restoring original img - in case it was changed")
-                        //restore original image in case some js changed it during runtime
-                        wrapper.removeChild(img);
-                        wrapper.appendChild(originalImg);
-                    }, false);
-                    //console.log("TEST");
-                }
-                else
-                {
-                    var padding1Cointainer = document.createElement('div');
-                    padding1Cointainer.style.position = "relative";
-                    padding1Cointainer.style.width = "100%";
-                    padding1Cointainer.style.height = "5%";
+              var array_data = new Float32Array(data)
+              //console.log(array2);
+              var array_tensor = new Float32Array(IMAGE_WIDTH * IMAGE_HEIGHT * 3);
+              for (var i = 0; i < IMAGE_WIDTH * IMAGE_HEIGHT; i++)
+                  for (var j = 0; j < 3; j++)
+                      array_tensor[i * 3 + j] = array_data[i * 4 + j] / 255;
+              const inputData = {input: array_tensor};
 
-                    var warningText1Cointainer = document.createElement('div');
-                    warningText1Cointainer.style.position = "relative";
-                    warningText1Cointainer.style.width = "100%";
-                    warningText1Cointainer.style.height = "20%";
+              console.log("Predict started");
+              statusText.style.position = "absolute";
+              statusText.innerHTML = "Predicting...";
+              fitText(statusText, 0.8);
+              statusText.style.position = "relative";
 
-                    var warningText2Cointainer = document.createElement('div');
-                    warningText2Cointainer.style.position = "relative";
-                    warningText2Cointainer.style.width = "100%";
-                    warningText2Cointainer.style.height = "50%";
+              console.log("--------------------------------");
+              //in case the js code of the website modified the node we restore it
+              //wrapper.removeChild(img);
+              //var img = unmutatedImg.cloneNode(true);
+              //wrapper.appendChild(img);
 
-                    var warningText3Cointainer = document.createElement('div');
-                    warningText3Cointainer.style.position = "relative";
-                    warningText3Cointainer.style.width = "100%";
-                    warningText3Cointainer.style.height = "20%";
+              console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
-                    var padding2Cointainer = document.createElement('div');
-                    padding1Cointainer.style.position = "relative";
-                    padding1Cointainer.style.width = "100%";
-                    padding1Cointainer.style.height = "5%";
+              //send data to worker
+              kerasWorker.postMessage(inputData);
+              kerasWorker.addEventListener('message', function(e) {
 
-                    /*var icon = document.createElement('span');
-                    icon.style.position = "absolute";
-                    icon.style.fontSize = "300%";
-                    //icon.style.margin = "5px auto 5px";
-                    //icon.style.textAlign = "center";
-                    icon.style.top = "50%";
-                    //icon.
-                    icon.style.transform = "translateY(-50%)";
-                    icon.classList.add('trypo-warning');*/
 
-                    var warningText1 = statusText.cloneNode(true);
-                    warningText1.innerHTML = "Warning!";
+                  //model.predict(inputData).then(function(outputData) {
 
-                    var warningText2 = statusText.cloneNode(true);
-                    warningText2.innerHTML = Number(outputData.output[0]*100).toFixed(0)+'%';
+                  kerasWorkerPseudoSemaphor = false;
+                  var outputData = e.data;
+                  //setTimeout(function () {
+                  //console.log("I WAS INVOKED")
+              console.log(outputData.output);
+              console.log(outputData.output[0]);
 
-                    var warningText3 = statusText.cloneNode(true);
-                    warningText3.innerHTML = "Trypophobic";
+              statusText.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic';
+              rectangle.removeChild(spinner);
+              rectangle.removeChild(textCointainer);
+              textCointainer.removeChild(statusText);
 
-                    warningText1Cointainer.appendChild(warningText1);
-                    warningText2Cointainer.appendChild(warningText2);
-                    warningText3Cointainer.appendChild(warningText3);
+              //console.log("REMOVAL")
+              if (outputData.output[0] < 0.005) {
+                  //console.log("ASDAS111111111");
+                  img.style.webkitFilter = "";
+                  img.style.filter = "";
+                  img.style.animation = "trypo-reveal linear 1s";
+                  img.style.webkitAnimation = "trypo-reveal linear 1s";
 
-                    rectangle.appendChild(padding1Cointainer);
-                    rectangle.appendChild(warningText1Cointainer);
-                    rectangle.appendChild(warningText2Cointainer);
-                    rectangle.appendChild(warningText3Cointainer);
-                    rectangle.appendChild(padding2Cointainer);
+                  mask.classList.add('tryponet_done');
 
-                    fitText(warningText1, 0.8);
-                    fitText(warningText2, 0.4);
-                    fitText(warningText3, 0.8);
+                  //mask.style.backgroundColor = "";
+                  mask.removeChild(rectangle);
+                  console.log("REE");
+                  wrapper.removeChild(mask);
 
-                    mask.classList.add("tryponet-hover");
+                  console.log("I'm here");
+                  img.addEventListener(whichAnimationEvent(), function () {
+                      //console.log("Restoring original img - in case it was changed")
+                      //restore original image in case some js changed it during runtime
+                      /*if (originalImg.onload) //reload the image
+                      {
+                          originalImg.onload()
+                      }*/
+                      if (originalImg.src === '') {
+                          // originalImg.src = img.src;
+                          img.style.animation = "";
+                          img.style.webkitAnimation = "";
+                          img.style.webkitFilter = "";
+                          img.style.filter = "";
+                      }
+                      else {
+                          wrapper.removeChild(img);
+                          wrapper.appendChild(originalImg);
+                      }
+                  }, false);
+                  //console.log("TEST");
+              }
+              else {
+                  var padding1Cointainer = document.createElement('div');
+                  padding1Cointainer.style.position = "relative";
+                  padding1Cointainer.style.width = "100%";
+                  padding1Cointainer.style.height = "5%";
 
-                    //setup the click to reveal feature
-                    mask.onclick = function(event)
-                    {
-                        event.stopPropagation();
-                        event.preventDefault();
+                  var warningText1Cointainer = document.createElement('div');
+                  warningText1Cointainer.style.position = "relative";
+                  warningText1Cointainer.style.width = "100%";
+                  warningText1Cointainer.style.height = "20%";
+
+                  var warningText2Cointainer = document.createElement('div');
+                  warningText2Cointainer.style.position = "relative";
+                  warningText2Cointainer.style.width = "100%";
+                  warningText2Cointainer.style.height = "50%";
+
+                  var warningText3Cointainer = document.createElement('div');
+                  warningText3Cointainer.style.position = "relative";
+                  warningText3Cointainer.style.width = "100%";
+                  warningText3Cointainer.style.height = "20%";
+
+                  var padding2Cointainer = document.createElement('div');
+                  padding1Cointainer.style.position = "relative";
+                  padding1Cointainer.style.width = "100%";
+                  padding1Cointainer.style.height = "5%";
+
+                  /*var icon = document.createElement('span');
+                  icon.style.position = "absolute";
+                  icon.style.fontSize = "300%";
+                  //icon.style.margin = "5px auto 5px";
+                  //icon.style.textAlign = "center";
+                  icon.style.top = "50%";
+                  //icon.
+                  icon.style.transform = "translateY(-50%)";
+                  icon.classList.add('trypo-warning');*/
+
+                  statusText.style.position = "absolute";
+
+                  var warningText1 = statusText.cloneNode(true);
+                  warningText1.innerHTML = "Warning!";
+
+                  var warningText2 = statusText.cloneNode(true);
+                  warningText2.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '%';
+
+                  var warningText3 = statusText.cloneNode(true);
+                  warningText3.innerHTML = "Trypophobic";
+
+                  warningText1Cointainer.appendChild(warningText1);
+                  warningText2Cointainer.appendChild(warningText2);
+                  warningText3Cointainer.appendChild(warningText3);
+
+                  rectangle.appendChild(padding1Cointainer);
+                  rectangle.appendChild(warningText1Cointainer);
+                  rectangle.appendChild(warningText2Cointainer);
+                  rectangle.appendChild(warningText3Cointainer);
+                  rectangle.appendChild(padding2Cointainer);
+
+                  fitText(warningText1, 0.8);
+                  fitText(warningText2, 0.4);
+                  fitText(warningText3, 0.8);
+
+                  warningText1.style.position = "relative";
+                  warningText2.style.position = "relative";
+                  warningText3.style.position = "relative";
+
+                  mask.classList.add("tryponet-hover");
+
+                  //setup the click to reveal feature
+                  mask.onmouseover = function (event) {
+                      event.stopPropagation();
+                      event.preventDefault();
+                  };
+                  mask.onclick = function (event) {
+                      event.stopPropagation();
+                      event.preventDefault();
+
+                      mask.classList.add('tryponet_done');
 
                       rectangle.removeChild(padding1Cointainer);
                       rectangle.removeChild(warningText1Cointainer);
@@ -291,20 +361,39 @@ function process_image(img) {
                       img.style.filter = "";
                       img.style.animation = "trypo-reveal linear 1s";
                       img.style.webkitAnimation = "trypo-reveal linear 1s";
-                      img.addEventListener(whichAnimationEvent(), function(){
+                      img.addEventListener(whichAnimationEvent(), function () {
                           //console.log("Restoring original img - in case it was changed")
                           // restore original image in case some js changed it during runtime
-                          wrapper.removeChild(img);
-                          wrapper.appendChild(originalImg);
-                        }, false);
-                    }
-                }
+                          /*wrapper.removeChild(img);
+                          wrapper.appendChild(originalImg);*/
+                          /*if (originalImg.onload) //reload the image
+                          {
+                              originalImg.onload()
+                          }*/
+                          if (originalImg.src === '') {
+                              // originalImg.src = img.src;
+                              img.style.animation = "";
+                              img.style.webkitAnimation = "";
+                              img.style.webkitFilter = "";
+                              img.style.filter = "";
+                          }
+                          else {
+                              wrapper.removeChild(img);
+                              wrapper.appendChild(originalImg);
+                          }
+                      }, false);
+                  }
+              }
 
-            }, 1000);/*.catch(exception => {
-                console.log(exception);
-            })} );*/
-
-    }//);
+              //}, 1000);
+          }, false);/*).catch(function(exception) {
+                  console.log(exception);
+          });*/  //} );
+          });
+//});
+}
+  //});
+    //}//);
 
   //console.log("Donek")
 //}

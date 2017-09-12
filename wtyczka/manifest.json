@@ -20,6 +20,8 @@
   ],
 
   "web_accessible_resources": [
+    "lib/keras.js",
+    "prediction_generator.js",
     "model/model.json",
     "model/model_weights.buf",
     "model/model_metadata.json"

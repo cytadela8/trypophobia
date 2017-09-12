@@ -20,8 +20,8 @@ var model = new KerasJS.Model({
 	gpu: true
 });
 
-IMAGE_HEIGHT = 250;
-IMAGE_WIDTH = 250;
+IMAGE_HEIGHT = 256;
+IMAGE_WIDTH = 256;
 
 function inputHandler() {
     path = document.getElementById('pathek').value;
@@ -76,9 +76,9 @@ console.log("I'm ready!!!");
 		<input id='pathek' value="https://i.imgur.com/KY0kCMy.png" size="100"></input>
 		<button onclick="inputHandler()">DOIT</button>
 
-        <div>
+        <!--<div>
             <img src="https://i.imgur.com/KY0kCMy.png" />
-        </div>
+        </div>-->
 
         </div>
 	</body>
