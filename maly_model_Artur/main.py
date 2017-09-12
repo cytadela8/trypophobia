@@ -46,7 +46,7 @@ def load_folder(folder):
     return ret
 
 
-def image_to_X_Y(fobia_images, normal_images):
+def image_to_x_y(fobia_images, normal_images):
     X_train = np.append(fobia_images, normal_images, axis=0)
     Y_train = np.array([[1, 0] for _ in range(len(fobia_images))] +
                        [[0, 1] for _ in range(len(normal_images))])
@@ -60,6 +60,15 @@ def array_2d_to_image(array, autorescale=True):
         array = 255 * array
     array = array.astype('uint8')
     return Image.fromarray(array)
+
+
+def array_3d_to_image(array, autorescale=True):
+    assert array.min() >= 0
+    assert len(array.shape) == 3
+    if array.max() <= 1 and autorescale:
+        array = 255 * array
+    array = array.astype('uint8')
+    return Image.fromarray(array, 'RGB')
 
 
 class NeptuneCallback(Callback):
@@ -84,8 +93,8 @@ class NeptuneCallback(Callback):
 
                 ctx.job.channel_send('false_predictions', neptune.Image(
                     name='[{}] pred: {} true: {}'.format(self.epoch_id, prefiction_names[prediction], prefiction_names[actual]),
-                    description="{} {:5.1f}%".format(prefiction_names[0], 100 * scores[0]),
-                    data=array_2d_to_image(X_test[index,:,:,0])))
+                    description="{} {:5.1f}%".format(prefiction_names[0], 100 * scores[index][0]),
+                    data=array_3d_to_image(X_test[index,:,:,:])))
 
 
 model = Sequential()
@@ -133,11 +142,12 @@ fobia_images_val = load_folder(fobia_folder_val) / 255.
 fobia_images = load_folder(fobia_folder) / 255.
 print("data loaded 1/2")
 
-X_train, Y_train = image_to_X_Y(fobia_images, normal_images)
+X_train, Y_train = image_to_x_y(fobia_images, normal_images)
 del fobia_images
 del normal_images
+print(X_train.shape, Y_train.shape, len(X_train), len(Y_train))
 assert len(X_train) == len(Y_train)
-X_test, Y_test = image_to_X_Y(fobia_images_val, normal_images_val)
+X_test, Y_test = image_to_x_y(fobia_images_val, normal_images_val)
 del fobia_images_val
 del normal_images_val
 assert len(X_test) == len(Y_test)
@@ -152,7 +162,8 @@ history = model.fit(X_train, Y_train,
                     validation_data=(X_test, Y_test), callbacks=[
         keras.callbacks.ModelCheckpoint("/output/modelweights.{epoch:02d}-{val_loss:.2f}.hdf5", monitor='val_loss', verbose=0,
                                 save_best_only=False, save_weights_only=True, mode='auto', period=1),
-        keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=0, mode='auto')
+        keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=0, patience=15, verbose=0, mode='auto'),
+        NeptuneCallback(images_per_epoch=10)
     ])
 
 model.save("/output/model")

@@ -8,7 +8,7 @@ parameters:
     description: Maksymalna liczba epoch
     default: 100
   batch_size:
-    default: 500
+    default: 64
   resolution_x:
     default: 256
   resolution_y:
