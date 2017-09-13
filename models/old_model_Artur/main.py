@@ -1,16 +1,14 @@
+import sys
+sys.path.insert(0, "/input/") #for cloud
+sys.path.insert(0, "../common/") #for local
+import common
 
+from keras.models import Sequential
 from keras.layers import *
-from keras import *
-from keras.models import *
-resolution_x = 250
-resolution_y = 250
-#import tensorflow as tf
-#tf.python.control_flow_ops = tf
 
 model = Sequential()
 model.add(Conv2D(16, (3, 3), padding='same',
-          input_shape=(resolution_x, resolution_y, 3)))
-#model.add(Convolution2D(8, 3, 3, border_mode='same'))
+          input_shape=(common.resolution_x, common.resolution_y, 3)))
 model.add(Conv2D(32, (3, 3), padding='same'))
 model.add(Activation('relu'))
 model.add(Conv2D(32, (3, 3), padding='same'))
@@ -50,5 +48,4 @@ model.add(Dense(2))
 model.add(Activation('softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-with open('model.json', 'w') as f:
-    f.write(model.to_json())
+common.experiment(model)

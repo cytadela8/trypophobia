@@ -1,5 +1,6 @@
 import sys
-sys.path.insert(0, "/input/")
+sys.path.insert(0, "/input/") #for
+sys.path.insert(0, "../common/") #for local
 import common
 
 from keras.models import Sequential

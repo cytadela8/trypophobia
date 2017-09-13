@@ -4,10 +4,10 @@ parameters:
   output_location:
     default: '/output/'
   data_folder:
-    description: lokalizacja folderu z danymi bez slashy na poczatku i koncu, bez /input
+    description: Path to the folder containing the dataset without preeceding and succeding slashes and without the input location
     default: 'tryponet_set-test'
   number_of_epochs:
-    description: Maksymalna liczba epoch
+    description: Maximum number of epochs
     default: 100
   batch_size:
     default: 64
