@@ -1,5 +1,10 @@
 # MY / CUSTOM
 
+tryponet_set/
+tryponet_set-test/
+*.tar.xz
+*.tar.gz
+*.log
 data
 bin
 download
