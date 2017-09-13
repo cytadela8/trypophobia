@@ -1,5 +1,6 @@
 # MY / CUSTOM
 
+models/*/output
 tryponet_set/
 tryponet_set-test/
 *.tar.xz
