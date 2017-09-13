@@ -77,11 +77,9 @@ document.addEventListener('DOMContentLoaded', function () {
     //image was already processed
     if (img.parentNode.classList.contains('tryponet_internal'))
       return
-    var originalImg = img.cloneNode(true)
     //img.style.visibility = 'hidden';
     img.style.webkitFilter = 'blur(20px)'
     img.style.filter = 'blur(20px)'
-    var unmutatedImg = img.cloneNode(true)
 
     var parent = img.parentNode
     var wrapper = document.createElement('div')
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
     statusText.style.paddingBottom = '10%'
     statusText.style.top = '50%'
     statusText.style.transform = 'translateY(-50%)'
-    statusText.innerHTML = 'Processing...'
+    statusText.innerHTML = 'Queued...'
     textCointainer.appendChild(statusText)
 
     fitText(statusText, 0.8)
@@ -157,11 +155,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return kerasWorkerPseudoSemaphor
       }, false, 50, 0, 'model waiter',
       function () {
-
         kerasWorkerPseudoSemaphor = true
         console.log('I DO NOT KNOW WHAT IS GOING ON IN JS')
-
-        var img2 = loadImage.scale(originalImg, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT})
+        let imgcopy = img.cloneNode(true)  //potrzebujemy zrobic kopie, bo loadimage.scale robi dziwne rzeczy
+        var img2 = loadImage.scale(imgcopy, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT})
 
         console.log('asdassfdsfs')
 
@@ -177,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('Predict started')
         statusText.style.position = 'absolute'
-        statusText.innerHTML = 'Predicting...'
+        statusText.innerHTML = 'Processing...'
         fitText(statusText, 0.8)
         statusText.style.position = 'relative'
 
@@ -191,9 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         //send data to worker
         kerasWorker.postMessage(inputData)
-        kerasWorker.addEventListener('message', function (e) {
-
-
+        kerasWorker.onmessage = function (e) {
           //model.predict(inputData).then(function(outputData) {
 
           kerasWorkerPseudoSemaphor = false
@@ -208,8 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
           rectangle.removeChild(textCointainer)
           textCointainer.removeChild(statusText)
 
-          //console.log("REMOVAL")
-          if (outputData.output[0] < 0.005) {
+          function reveal() {
             //console.log("ASDAS111111111");
             img.style.webkitFilter = ''
             img.style.filter = ''
@@ -225,25 +219,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('I\'m here')
             img.addEventListener(whichAnimationEvent(), function () {
-              //console.log("Restoring original img - in case it was changed")
-              //restore original image in case some js changed it during runtime
-              /*if (originalImg.onload) //reload the image
-              {
-                  originalImg.onload()
-              }*/
-              if (originalImg.src === '') {
-                // originalImg.src = img.src;
-                img.style.animation = ''
-                img.style.webkitAnimation = ''
-                img.style.webkitFilter = ''
-                img.style.filter = ''
-              }
-              else {
-                wrapper.removeChild(img)
-                wrapper.appendChild(originalImg)
-              }
+              img.style.animation = ''
+              img.style.webkitAnimation = ''
             }, false)
             //console.log("TEST");
+          }
+
+          //console.log("REMOVAL")
+          if (outputData.output[0] < 0.005) {
+            reveal()
           }
           else {
             var padding1Cointainer = document.createElement('div')
@@ -320,47 +304,12 @@ document.addEventListener('DOMContentLoaded', function () {
             mask.onclick = function (event) {
               event.stopPropagation()
               event.preventDefault()
-
-              mask.classList.add('tryponet_done')
-
-              rectangle.removeChild(padding1Cointainer)
-              rectangle.removeChild(warningText1Cointainer)
-              rectangle.removeChild(warningText2Cointainer)
-              rectangle.removeChild(warningText3Cointainer)
-              rectangle.removeChild(padding2Cointainer)
-              mask.removeChild(rectangle)
-              wrapper.removeChild(mask)
-
-              img.style.webkitFilter = ''
-              img.style.filter = ''
-              img.style.animation = 'trypo-reveal linear 1s'
-              img.style.webkitAnimation = 'trypo-reveal linear 1s'
-              img.addEventListener(whichAnimationEvent(), function () {
-                //console.log("Restoring original img - in case it was changed")
-                // restore original image in case some js changed it during runtime
-                /*wrapper.removeChild(img);
-                wrapper.appendChild(originalImg);*/
-                /*if (originalImg.onload) //reload the image
-                {
-                    originalImg.onload()
-                }*/
-                if (originalImg.src === '') {
-                  // originalImg.src = img.src;
-                  img.style.animation = ''
-                  img.style.webkitAnimation = ''
-                  img.style.webkitFilter = ''
-                  img.style.filter = ''
-                }
-                else {
-                  wrapper.removeChild(img)
-                  wrapper.appendChild(originalImg)
-                }
-              }, false)
+              reveal()
             }
           }
 
           //}, 1000);
-        }, false)
+        }
         /*).catch(function(exception) {
                           console.log(exception);
                   });*/  //} );
