@@ -1,25 +1,33 @@
 var kerasWorker = new Worker(browser.extension.getURL('prediction_generator.js'))
-var kerasWorkerPseudoSemaphor = false
 
 var IMAGE_HEIGHT = 256
 var IMAGE_WIDTH = 256
 
-document.addEventListener('DOMContentLoaded', function () {
+var queue = []
+var working = false
 
-  function waitfor (test, expectedValue, msec, count, source, callback) {
-    // Check if condition met. If not, re-check later (msec).
-    while (test() !== expectedValue) {
-      count++
-      setTimeout(function () {
-        waitfor(test, expectedValue, msec, count, source, callback)
-      }, msec)
-      return
-    }
-    // Condition finally met. callback() can be executed.
-    console.log(source + ': ' + test() + ', expected: ' + expectedValue + ', ' + count + ' loops.')
-    callback()
+function enqueue (fn) {
+  queue.push(fn)
+  if (queue.length === 1) {
+    working = true
+    console.log("starting to process")
+    queue[0](queue_callback)
   }
+  else
+    console.log("already processing: " + queue.length)
+}
 
+function queue_callback () {
+  queue.shift()
+  if (queue.length > 0) {
+    console.log("new task, left: " + queue.length)
+    queue[0](queue_callback)
+  }
+  else
+    console.log("last task finished")
+}
+
+document.addEventListener('DOMContentLoaded', function () {
   function whichAnimationEvent () {
     var t
     var el = document.createElement('fakeelement')
@@ -64,11 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   var debug = 3 //If equal 1 -> only one image is processed
-
-  function calculate_image(img) {
-
-  }
-
   function process_image (img) {
     if (debug === 2) {
       return
@@ -151,177 +154,160 @@ document.addEventListener('DOMContentLoaded', function () {
     fitText(statusText, 0.8)
     statusText.style.position = 'relative'
 
-    waitfor(function () {
-        return kerasWorkerPseudoSemaphor
-      }, false, 50, 0, 'model waiter',
-      function () {
-        kerasWorkerPseudoSemaphor = true
-        console.log('I DO NOT KNOW WHAT IS GOING ON IN JS')
-        let imgcopy = img.cloneNode(true)  //potrzebujemy zrobic kopie, bo loadimage.scale robi dziwne rzeczy
-        var img2 = loadImage.scale(imgcopy, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT})
+    var process = function (callback) {
+      console.log('I DO NOT KNOW WHAT IS GOING ON IN JS')
+      let imgcopy = img.cloneNode(true)  //potrzebujemy zrobic kopie, bo loadimage.scale robi dziwne rzeczy
+      var img2 = loadImage.scale(imgcopy, {maxWidth: IMAGE_WIDTH, maxHeight: IMAGE_HEIGHT, canvas: true})
+      imgcopy=null
 
-        console.log('asdassfdsfs')
+      console.log('asdassfdsfs')
 
-        var canvas = document.createElement('canvas')
-        var ctx = canvas.getContext('2d')
-        ctx.drawImage(img2, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
-        var array_data = new Float32Array(ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data)
-        var array_tensor = new Float32Array(IMAGE_WIDTH * IMAGE_HEIGHT * 3)
-        for (var i = 0; i < IMAGE_WIDTH * IMAGE_HEIGHT; i++)
-          for (var j = 0; j < 3; j++)
-            array_tensor[i * 3 + j] = array_data[i * 4 + j] / 255
-        const inputData = {input: array_tensor}
+      //var canvas = document.createElement('canvas')
+      var ctx = img2.getContext('2d')
+      //ctx.drawImage(img2, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
+      var array_data = new Float32Array(ctx.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data)
+      var array_tensor = new Float32Array(IMAGE_WIDTH * IMAGE_HEIGHT * 3)
+      for (var i = 0; i < IMAGE_WIDTH * IMAGE_HEIGHT; i++)
+        for (var j = 0; j < 3; j++)
+          array_tensor[i * 3 + j] = array_data[i * 4 + j] / 255
+      var inputData = {input: array_tensor}
 
-        console.log('Predict started')
-        statusText.style.position = 'absolute'
-        statusText.innerHTML = 'Processing...'
-        fitText(statusText, 0.8)
-        statusText.style.position = 'relative'
+      console.log('Predict started')
+      statusText.style.position = 'absolute'
+      statusText.innerHTML = 'Processing...'
+      fitText(statusText, 0.8)
+      statusText.style.position = 'relative'
 
-        console.log('--------------------------------')
-        //in case the js code of the website modified the node we restore it
-        //wrapper.removeChild(img);
-        //var img = unmutatedImg.cloneNode(true);
-        //wrapper.appendChild(img);
+      console.log('--------------------------------')
+      //send data to worker
+      kerasWorker.postMessage(inputData)
+      kerasWorker.onmessage = function (e) {
+        inputData = null
+        ctx=null
+        array_data=null
+        array_tensor=null
+        canvas=null
+        img2=null
 
-        console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+        var outputData = e.data
+        console.log(outputData.output)
+        console.log(outputData.output[0])
+        statusText.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic'
+        rectangle.removeChild(spinner)
+        rectangle.removeChild(textCointainer)
+        textCointainer.removeChild(statusText)
+        function reveal () {
+          //console.log("ASDAS111111111");
+          img.style.webkitFilter = ''
+          img.style.filter = ''
+          img.style.animation = 'trypo-reveal linear 1s'
+          img.style.webkitAnimation = 'trypo-reveal linear 1s'
 
-        //send data to worker
-        kerasWorker.postMessage(inputData)
-        kerasWorker.onmessage = function (e) {
-          //model.predict(inputData).then(function(outputData) {
+          mask.classList.add('tryponet_done')
 
-          kerasWorkerPseudoSemaphor = false
-          var outputData = e.data
-          //setTimeout(function () {
-          //console.log("I WAS INVOKED")
-          console.log(outputData.output)
-          console.log(outputData.output[0])
+          //mask.style.backgroundColor = "";
+          mask.removeChild(rectangle)
+          console.log('REE')
+          wrapper.removeChild(mask)
 
-          statusText.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic'
-          rectangle.removeChild(spinner)
-          rectangle.removeChild(textCointainer)
-          textCointainer.removeChild(statusText)
+          console.log('I\'m here')
+          img.addEventListener(whichAnimationEvent(), function () {
+            img.style.animation = ''
+            img.style.webkitAnimation = ''
+          }, false)
+          //console.log("TEST");
+        }
 
-          function reveal() {
-            //console.log("ASDAS111111111");
-            img.style.webkitFilter = ''
-            img.style.filter = ''
-            img.style.animation = 'trypo-reveal linear 1s'
-            img.style.webkitAnimation = 'trypo-reveal linear 1s'
+        if (outputData.output[0] < 0.005) {
+          reveal()
+        }
+        else {
+          var padding1Cointainer = document.createElement('div')
+          padding1Cointainer.style.position = 'relative'
+          padding1Cointainer.style.width = '100%'
+          padding1Cointainer.style.height = '5%'
 
-            mask.classList.add('tryponet_done')
+          var warningText1Cointainer = document.createElement('div')
+          warningText1Cointainer.style.position = 'relative'
+          warningText1Cointainer.style.width = '100%'
+          warningText1Cointainer.style.height = '20%'
 
-            //mask.style.backgroundColor = "";
-            mask.removeChild(rectangle)
-            console.log('REE')
-            wrapper.removeChild(mask)
+          var warningText2Cointainer = document.createElement('div')
+          warningText2Cointainer.style.position = 'relative'
+          warningText2Cointainer.style.width = '100%'
+          warningText2Cointainer.style.height = '50%'
 
-            console.log('I\'m here')
-            img.addEventListener(whichAnimationEvent(), function () {
-              img.style.animation = ''
-              img.style.webkitAnimation = ''
-            }, false)
-            //console.log("TEST");
+          var warningText3Cointainer = document.createElement('div')
+          warningText3Cointainer.style.position = 'relative'
+          warningText3Cointainer.style.width = '100%'
+          warningText3Cointainer.style.height = '20%'
+
+          var padding2Cointainer = document.createElement('div')
+          padding1Cointainer.style.position = 'relative'
+          padding1Cointainer.style.width = '100%'
+          padding1Cointainer.style.height = '5%'
+
+          /*var icon = document.createElement('span');
+          icon.style.position = "absolute";
+          icon.style.fontSize = "300%";
+          //icon.style.margin = "5px auto 5px";
+          //icon.style.textAlign = "center";
+          icon.style.top = "50%";
+          //icon.
+          icon.style.transform = "translateY(-50%)";
+          icon.classList.add('trypo-warning');*/
+
+          statusText.style.position = 'absolute'
+
+          var warningText1 = statusText.cloneNode(true)
+          warningText1.innerHTML = 'Warning!'
+
+          var warningText2 = statusText.cloneNode(true)
+          warningText2.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '%'
+
+          var warningText3 = statusText.cloneNode(true)
+          warningText3.innerHTML = 'Trypophobic'
+
+          warningText1Cointainer.appendChild(warningText1)
+          warningText2Cointainer.appendChild(warningText2)
+          warningText3Cointainer.appendChild(warningText3)
+          console.log("appending")
+          rectangle.appendChild(padding1Cointainer)
+          rectangle.appendChild(warningText1Cointainer)
+          rectangle.appendChild(warningText2Cointainer)
+          rectangle.appendChild(warningText3Cointainer)
+          rectangle.appendChild(padding2Cointainer)
+          console.log("fitting")
+          fitText(warningText1, 0.8)
+          fitText(warningText2, 0.4)
+          fitText(warningText3, 0.8)
+
+          warningText1.style.position = 'relative'
+          warningText2.style.position = 'relative'
+          warningText3.style.position = 'relative'
+
+          mask.classList.add('tryponet-hover')
+
+          //setup the click to reveal feature
+          mask.onmouseover = function (event) {
+            event.stopPropagation()
+            event.preventDefault()
           }
-
-          //console.log("REMOVAL")
-          if (outputData.output[0] < 0.005) {
+          mask.onclick = function (event) {
+            event.stopPropagation()
+            event.preventDefault()
             reveal()
           }
-          else {
-            var padding1Cointainer = document.createElement('div')
-            padding1Cointainer.style.position = 'relative'
-            padding1Cointainer.style.width = '100%'
-            padding1Cointainer.style.height = '5%'
-
-            var warningText1Cointainer = document.createElement('div')
-            warningText1Cointainer.style.position = 'relative'
-            warningText1Cointainer.style.width = '100%'
-            warningText1Cointainer.style.height = '20%'
-
-            var warningText2Cointainer = document.createElement('div')
-            warningText2Cointainer.style.position = 'relative'
-            warningText2Cointainer.style.width = '100%'
-            warningText2Cointainer.style.height = '50%'
-
-            var warningText3Cointainer = document.createElement('div')
-            warningText3Cointainer.style.position = 'relative'
-            warningText3Cointainer.style.width = '100%'
-            warningText3Cointainer.style.height = '20%'
-
-            var padding2Cointainer = document.createElement('div')
-            padding1Cointainer.style.position = 'relative'
-            padding1Cointainer.style.width = '100%'
-            padding1Cointainer.style.height = '5%'
-
-            /*var icon = document.createElement('span');
-            icon.style.position = "absolute";
-            icon.style.fontSize = "300%";
-            //icon.style.margin = "5px auto 5px";
-            //icon.style.textAlign = "center";
-            icon.style.top = "50%";
-            //icon.
-            icon.style.transform = "translateY(-50%)";
-            icon.classList.add('trypo-warning');*/
-
-            statusText.style.position = 'absolute'
-
-            var warningText1 = statusText.cloneNode(true)
-            warningText1.innerHTML = 'Warning!'
-
-            var warningText2 = statusText.cloneNode(true)
-            warningText2.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '%'
-
-            var warningText3 = statusText.cloneNode(true)
-            warningText3.innerHTML = 'Trypophobic'
-
-            warningText1Cointainer.appendChild(warningText1)
-            warningText2Cointainer.appendChild(warningText2)
-            warningText3Cointainer.appendChild(warningText3)
-
-            rectangle.appendChild(padding1Cointainer)
-            rectangle.appendChild(warningText1Cointainer)
-            rectangle.appendChild(warningText2Cointainer)
-            rectangle.appendChild(warningText3Cointainer)
-            rectangle.appendChild(padding2Cointainer)
-
-            fitText(warningText1, 0.8)
-            fitText(warningText2, 0.4)
-            fitText(warningText3, 0.8)
-
-            warningText1.style.position = 'relative'
-            warningText2.style.position = 'relative'
-            warningText3.style.position = 'relative'
-
-            mask.classList.add('tryponet-hover')
-
-            //setup the click to reveal feature
-            mask.onmouseover = function (event) {
-              event.stopPropagation()
-              event.preventDefault()
-            }
-            mask.onclick = function (event) {
-              event.stopPropagation()
-              event.preventDefault()
-              reveal()
-            }
-          }
-
-          //}, 1000);
         }
-        /*).catch(function(exception) {
-                          console.log(exception);
-                  });*/  //} );
-      })
-//});
+        callback()
+      }
+    }
+    if (img.complete)
+      enqueue(process)
+    else {
+      img.addEventListener("load", () => {enqueue(process)})
+    }
   }
-
-  //});
-  //}//);
-
-  //console.log("Donek")
-//}
 
   Array.prototype.forEach.call(document.images, process_image)
 
