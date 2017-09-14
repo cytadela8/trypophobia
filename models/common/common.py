@@ -117,10 +117,11 @@ class NeptuneCallbackNonGenerator(Callback):
         self.epoch_id += 1
 
         # Predict the digits for images of the test set.
-        validation_predictions = self.model.predict_classes(self.X_test)
-        print(validation_predictions)
+        #validation_predictions = self.model.predict_classes(self.X_test)
+        #print(validation_predictions)
         scores = self.model.predict(self.X_test)
-        print(scores)
+        validation_predictions = scores.argmax(axis=-1)
+        #print(scores)
 
         # Identify the incorrectly classified images and send them to Neptune Dashboard.
         image_per_epoch = 0
@@ -204,9 +205,9 @@ def experiment(model):
 
         model.fit_generator(
             train_generator,
-            steps_per_epoch=len(os.listdir(fobia_folder))+len(os.listdir(normal_folder)),
+            steps_per_epoch=(len(os.listdir(fobia_folder))+len(os.listdir(normal_folder)))//ctx.params.batch_size,
             validation_data=validation_generator,
-            validation_steps=len(os.listdir(fobia_folder_val))+len(os.listdir(normal_folder_val)),
+            validation_steps=(len(os.listdir(fobia_folder_val))+len(os.listdir(normal_folder_val)))//ctx.params.batch_size,
             epochs=ctx.params.number_of_epochs, callbacks=[
                 keras.callbacks.ModelCheckpoint(os.path.join(ctx.params.output_location, "modelweights.{epoch:02d}-{val_loss:.2f}.hdf5"), monitor='val_loss', verbose=0,
                                         save_best_only=False, save_weights_only=True, mode='auto', period=1),

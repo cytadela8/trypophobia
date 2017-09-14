@@ -16,7 +16,7 @@ parameters:
   resolution_y:
     default: 256
   use_generators:
-    default: 'true'
+    default: 'false'
     description: Should the model fitting process use data generators
   augumentation_generator_seed:
     default: 4
