@@ -28,7 +28,7 @@ def main():
         return
 
     filenames = [f for f in os.listdir(source_dir) if os.path.isfile(os.path.join(source_dir, f))]
-    tmpfile = 'tmp/tmp' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    tmpfile = '/tmp/tmp' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) + '.png'
     for filename in tqdm.tqdm(filenames):
         path_to_file = os.path.join(source_dir, filename)
 
