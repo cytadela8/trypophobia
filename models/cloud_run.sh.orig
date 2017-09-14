@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+neptune data upload ../common/common.py;
+<<<<<<< HEAD
+neptune send --config ../common/neptune-cloud.yaml --input tryponet_set --input common.py --environment keras-2.0-gpu-py3 --worker gcp-gpu-large main.py;
+=======
+neptune send --config ../common/neptune-cloud.yaml --input common.py --environment keras-2.0-gpu-py3 --worker gcp-gpu-large main.py "$@"
+>>>>>>> d2f0fdec4f6772b5c83c48af4cceae9239bdaaeb
+

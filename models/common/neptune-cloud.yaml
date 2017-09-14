@@ -5,7 +5,7 @@ parameters:
     default: '/output/'
   data_folder:
     description: Path to the folder containing the dataset without preeceding and succeding slashes and without the input location
-    default: 'tryponet_set'
+    default: 'tryponet_set2'
   number_of_epochs:
     description: Maximum number of epochs
     default: 100
