@@ -5,8 +5,8 @@ Ever wanted to censor inappropriate images on the web using deep learning?
 ```
 
 <div style="width: 100%;">
-<div>
-<img src="./resources/poc.gif" height="214px" width="50%" />
+<div style="margin: auto; display: block;">
+<img src="./resources/poc.gif"/>
 </div>
 </div>
 
