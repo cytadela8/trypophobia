@@ -111,4 +111,3 @@ ENV/
 
 # mypy
 .mypy_cache/
-reddit_passes
