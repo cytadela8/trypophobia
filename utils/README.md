@@ -1,4 +1,4 @@
-#Utilities
+# Utilities
 
 - `google_images_fetcher` - scrap all pictures from Google Images for a given query
 - `image_normalizer` - convert all images in a given folder to the same shape and format

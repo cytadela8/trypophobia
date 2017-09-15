@@ -31,6 +31,7 @@ The utilities contained in the `utils` folder are small programs and scripts use
 ## The data set
 **[Download the data set v2](https://s3.eu-central-1.amazonaws.com/trypophobia/tryponet_set2.tar.gz)** prepared in 2017-09
 
+<<<<<<< HEAD
 *Note: The provided images may be or not be subjected to copyright. By downloading the data set you agree to use it only for research purposes.*
 
 
@@ -62,6 +63,8 @@ Images have been divided into 4 folders
 4. Images have been rescaled (maintaining aspect ratio) and cropped to 256x256 using [our tool](utils/image_normalizer).
 5. Images have been split into train and validation sets using [our tool](utils/split_files.sh).
 
+=======
+>>>>>>> 1c949fa... Readme
 > Anyone interested in the "raw" unprocessed data please send us an [email](mailto:gorbak25@gmail.com,cytadela8@interia.pl).
 
 ## The models
