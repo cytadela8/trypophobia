@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script moves random COUNT files from SOURCE folder (and subdirectories) to TARGET
+
 if [ "$#" -ne 3 ]; then
     echo "Usage: $0 source target count"
     exit
