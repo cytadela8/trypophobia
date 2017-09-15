@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# This script takes one folder as arguments and renames all files in subdirectories of that folder to ORYGINAL_NAME.MD5_SUM.EXTENSION
+
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 PATH"
+    exit
+fi
+
 PATHek=$1
 
 shopt -s globstar
