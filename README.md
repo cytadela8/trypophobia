@@ -1,20 +1,12 @@
-# Trypophobia detector
+# Browser Plugin With Deep Learning
 
 ```
 Ever wanted to censor inappropriate images on the web using deep learning?
 ```
 
-<div style="width: 100%; height: 450px;">
-<div style="width: 100%; height: 214px;">
-<img src="./resources/1.png" height="214px" width="33.33333%" />
-<img src="./resources/2.png" height="214px" width="33.33333%" />
-<img src="./resources/3.png" height="214px" width="33.33333%" />
-</div>
-<div style="position:relative; width: 100%; height: 22px;"></div>
-<div style="width: 100%; height: 214px;">
-<img src="./resources/4.png" height="214px" width="33.33333%" />
-<img src="./resources/5.png" height="214px" width="33.33333%" />
-<img src="./resources/4.png" height="214px" width="33.33333%" />
+<div style="width: 100%;">
+<div>
+<img src="./resources/poc.gif" height="214px" width="50%" />
 </div>
 </div>
 
