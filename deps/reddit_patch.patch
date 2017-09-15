@@ -1,0 +1,13 @@
+diff --git a/Prawtimestamps/timesearch/redmash.py b/Prawtimestamps/timesearch/redmash.py
+index 01cd482..e44b0c8 100644
+--- a/Prawtimestamps/timesearch/redmash.py
++++ b/Prawtimestamps/timesearch/redmash.py
+@@ -6,7 +6,7 @@ from . import tsdb
+ 
+ 
+ LINE_FORMAT_TXT = '''
+-{timestamp}: [{title}]({shortlink}) - /u/{author} (+{score})
++{timestamp}: [{title}]({shortlink}) - /u/{author} (+{score}); {url}
+ '''.replace('\n', '')
+ 
+ LINE_FORMAT_HTML = '''

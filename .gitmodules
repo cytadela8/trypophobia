@@ -1,3 +1,9 @@
 [submodule "deps/reddit"]
 	path = deps/reddit
 	url = https://github.com/voussoir/reddit.git
+[submodule "deps/JavaScript-Load-Image"]
+	path = deps/JavaScript-Load-Image
+	url = https://github.com/blueimp/JavaScript-Load-Image.git
+[submodule "deps/keras-js"]
+	path = deps/keras-js
+	url = https://github.com/transcranial/keras-js.git
