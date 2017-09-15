@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# For every .gif file in every subfolder of given folder this script checks number of frames (If git is animated) and outputs that information.
+# For every .gif file in every subfolder of a given folder this script checks the number of frames (If the gif is animated) and outputs that information.
 
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 source PATH"

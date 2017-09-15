@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+#Retrieves images from Google Images for many randomly chosen queries.
+#The folder ./results must exist - this is the destination directory for the downloads
+#The wordlist from which the words are chosen must be in ./words.txt
+
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time

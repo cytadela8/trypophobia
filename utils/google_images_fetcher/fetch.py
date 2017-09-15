@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+#Scraps Google Images for a given query
+
+#Usage: ./fetch.py [query] [download_folder] [limit]
+#[query]            - query which will be searched on Google Images
+#[download_folder]  - the location of the download folder
+#[limit]            - maximum amount of retrieved images
+
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time

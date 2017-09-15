@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+#Converts all images in a given folder to the same shape, format and then saves them to another directory
+
+#Usage: ./normalize [directory] [target_dir]
+#[directory]    - source directory
+#[target_dir]   - destination directory
+
 import cv2
 import os
 import sys
@@ -14,7 +20,7 @@ import string
 def main():
 
     if len(sys.argv) != 3:
-        print("Usage: ./normalize [directory] [targetdir]")
+        print("Usage: ./normalize [directory] [target_dir]")
         return
     try:
         source_dir = sys.argv[1]

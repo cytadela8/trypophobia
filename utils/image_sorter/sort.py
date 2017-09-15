@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+#Splits images into two groups based on user keystrokes.
+#For each image in the source folder a preview is displayed then
+#If the user pressed the key "A" the image will be moved to the groupA folder
+#If the user pressed the key "B" the image will be moved to the groupB folder
+
+#Usage: ./sort.py [source] [groupA] [groupB]
+#[source]  - source directory with images
+#[groupA]  - folder for group A
+#[groupB]  - folder for group B
+
 import os
 from os.path import isfile, join, isdir
 import sys
@@ -13,7 +23,7 @@ import numpy as np
 def main():
 
     if len(sys.argv) != 4:
-        print("Usage: ./sort.py [source] [trypophobic] [non_trypophobic]")
+        print("Usage: ./sort.py [source] [groupA] [groupB]")
         return
 
     try:
