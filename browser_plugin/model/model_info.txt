@@ -1,0 +1,1 @@
+batch_norm__model_Artur_setv2_15k_0.27 from epoch 33
