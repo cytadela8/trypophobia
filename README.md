@@ -1,8 +1,6 @@
-# Browser Plugin With Deep Learning
+# Trypophobia Image Detector - Browser Plugin using Deep Learning
 
-```
-Ever wanted to censor inappropriate images on the web using deep neural networks?
-```
+**Ever wanted to censor inappropriate images on the web using deep neural networks?**
 
 <div style="width: 100%;">
 <div style="margin: auto; display: block;">
@@ -10,7 +8,7 @@ Ever wanted to censor inappropriate images on the web using deep neural networks
 </div>
 </div>
 
-A deep learning project by [Artur Puzio](https://github.com/cytadela8) and [Grzegorz Uriasz](https://github.com/grzegorz225) made as part of an internship at [Deepsense](https://deepsense.ai/) sponsored by [The Polish Children's Fund](https://fundusz.org/english/) and supervised by [Piotr Migdał](https://github.com/stared).
+A deep learning project by [Artur Puzio](https://github.com/cytadela8) and [Grzegorz Uriasz](https://github.com/grzegorz225) made as part of an internship at [deepsense.ai](https://deepsense.ai/) sponsored by [The Polish Children's Fund](https://fundusz.org/english/) and supervised by [Piotr Migdał](http://p.migdal.pl/).
 
 ## Goals
 - Create a deep learning model for detecting [trypophobia triggers](https://en.wikipedia.org/wiki/Trypophobia) suitable for running on CPU
