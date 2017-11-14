@@ -28,9 +28,10 @@ function queue_callback () {
 }
 
 function safe_innerhtml (node, text) {
-    while( node.firstChild )
+    while( node.firstChild ) {
         node.removeChild( node.firstChild )
-    node.appendChild( document.createTextNode("Two") )
+    }
+    node.appendChild( document.createTextNode(text) )
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -198,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var outputData = e.data
         console.log(outputData.output)
         console.log(outputData.output[0])
-        safeinnerhtml (statusText, Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic')
+        safe_innerhtml (statusText, Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic')
         rectangle.removeChild(spinner)
         rectangle.removeChild(textCointainer)
         textCointainer.removeChild(statusText)

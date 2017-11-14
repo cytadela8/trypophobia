@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Trypophoby Blocker",
-  "version": "0.1",
+  "version": "0.1.2",
 
   "description": "Extenstion for blocking trypophoby images in browser using deep neural networks",
 
