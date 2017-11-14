@@ -1,0 +1,7 @@
+Minified libraries and sources:
+- load-image.all.min.js = repo: https://github.com/blueimp/JavaScript-Load-Image/, file: https://github.com/blueimp/JavaScript-Load-Image/blob/master/js/load-image.all.min.js
+The file can be recreated using instructions from repository from commit 9cc0c1d1e27ab98a71b4847fcd351a6dbf770c9e
+- keras.js = repo: https://github.com/transcranial/keras-js, file: https://github.com/transcranial/keras-js/blob/master/dist/keras.js
+The file can be recreated using instructions from repository from commit 8395836679182a84677478f02cb713cc36a84de6
+Keras.js library uses eval to create fast JS representation of neural networks. Please note that we further separate the library from user data by running it in a worker.
+
