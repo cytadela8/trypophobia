@@ -27,6 +27,12 @@ function queue_callback () {
     console.log("last task finished")
 }
 
+function safe_innerhtml (node, text) {
+    while( node.firstChild )
+        node.removeChild( node.firstChild )
+    node.appendChild( document.createTextNode("Two") )
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   function whichAnimationEvent () {
     var t
@@ -192,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var outputData = e.data
         console.log(outputData.output)
         console.log(outputData.output[0])
-        statusText.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic'
+        safeinnerhtml (statusText, Number(outputData.output[0] * 100).toFixed(0) + '% Trypophobic')
         rectangle.removeChild(spinner)
         rectangle.removeChild(textCointainer)
         textCointainer.removeChild(statusText)
@@ -263,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
           warningText1.innerHTML = 'Warning!'
 
           var warningText2 = statusText.cloneNode(true)
-          warningText2.innerHTML = Number(outputData.output[0] * 100).toFixed(0) + '%'
+          safe_innerhtml (warningText2, Number(outputData.output[0] * 100).toFixed(0) + '%')
 
           var warningText3 = statusText.cloneNode(true)
           warningText3.innerHTML = 'Trypophobic'
