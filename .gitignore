@@ -11,6 +11,7 @@ bin
 download
 venv_oldkeras
 .idea
+plugin.xpi
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
