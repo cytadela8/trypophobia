@@ -1,40 +1,40 @@
 parameters:
   input_location:
-    default: '../../'
+    value: '../../'
   output_location:
-    default: './output/'
+    value: './output/'
   data_folder:
     description: Path to the folder containing the dataset without preeceding and succeding slashes and without the input location
-    default: 'tryponet_set'
+    value: 'tryponet_set'
   number_of_epochs:
     description: Maximum number of epochs
-    default: 100
+    value: 100
   batch_size:
-    default: 64
+    value: 64
   resolution_x:
-    default: 256
+    value: 256
   resolution_y:
-    default: 256
+    value: 256
   use_generators:
-    default: 'true'
+    value: 'true'
     description: Should the model fitting process use data generators
   augumentation_generator_seed:
-    default: 4
+    value: 4
     description: RNG seed for data augumentation
   augumentation_rotation_range:
-    default: 45
+    value: 45
     description: Degree range for random rotations
   augumentation_width_shift_range:
-    default: 0.2
+    value: 0.2
     description: Range for random horizontal shifts
   augumentation_height_shift_range:
-    default: 0.2
+    value: 0.2
     description: Range for random vertical shifts
   augumentation_shear_range:
-    default: 0.2
+    value: 0.2
     description: Shear Intensity
   augumentation_zoom_range:
-    default: 0.2
+    value: 0.2
     description: Range for random zoom
 
 tags: [tryponet]
