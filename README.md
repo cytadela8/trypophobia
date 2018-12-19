@@ -28,11 +28,9 @@ A deep learning project by [Artur Puzio](https://github.com/cytadela8) and [Grze
 ## The utilities
 The utilities contained in the `utils` folder are small programs and scripts useful in generating the data set and easing the usage of the deep learning lab Neptune.   
 
-## The data set
-**[Download the data set v2](https://s3.eu-central-1.amazonaws.com/trypophobia/tryponet_set2.tar.gz)** prepared in 2017-09
+## [The data set](https://www.kaggle.com/cytadela8/trypophobia)
 
-*Note: The provided images may be or not be subjected to copyright. By downloading the data set you agree to use it only for research purposes.*
-
+*Note: The provided images may be or not be subjected to copyright. By downloading the dataset you agree to use it only for research purposes.*
 
 #### Contents
 
