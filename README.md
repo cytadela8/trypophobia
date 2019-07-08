@@ -18,7 +18,7 @@ A deep learning project by [Artur Puzio](https://github.com/cytadela8) and [Grze
 - Prepare a high quality data set for training trypophobia classifiers consisting of a combination of different data sources
 
 ## To do list
-- ~~Create an utility for scrapping images from Google Images~~
+- ~~Create a utility for scrapping images from Google Images~~
 - ~~Create utilities for quick image sorting and image normalization~~
 - ~~Create a browser plugin using the WebExtension API capable of censoring images on the fly~~
 - ~~Create neural networks suitable for running on a CPU in Javascript~~
@@ -63,7 +63,7 @@ Images have been divided into 4 folders
 > Anyone interested in the "raw" unprocessed data please send us an [email](mailto:gorbak25@gmail.com,cytadela8@interia.pl).
 
 ## The models
-The models were made in the [Keras](https://keras.io/) machine learning framework and are compatible with the [Keras.JS](https://github.com/transcranial/keras-js) javascript library. The models were trained on the Google Computing Platform using [Neptune](https://neptune.ml/). This repository contains some of the [models](models) together with the [training results](training_results). We examined performance of different sized models and decided to aim for one with less than 20k parameters. We achieved up to **90% accuracy and 0.27 log-loss** on the validation set. Additionaly, some models with <10k parameters came close to achieving these results.
+The models were made in the [Keras](https://keras.io/) machine learning framework and are compatible with the [Keras.JS](https://github.com/transcranial/keras-js) javascript library. The models were trained on the Google Computing Platform using [Neptune](https://neptune.ml/). This repository contains some of the [models](models) together with the [training results](training_results). We examined the performance of different size models and decided to aim for one with less than 20k parameters. We achieved up to **90% accuracy and 0.27 log-loss** on the validation set. Additionally, some models with <10k parameters came close to achieving these results.
 
 ## Browser plugin
 The browser plugin censors images encountered while browsing the web. It uses a supplied trained model to determine which images are safe to reveal and which a warning must be issued for. The extension is a WebExtension and was tested on Mozilla Firefox. Currently the extension works on most sites. You can try it [here](https://addons.mozilla.org/en-US/firefox/addon/trypophoby-blocker/).
